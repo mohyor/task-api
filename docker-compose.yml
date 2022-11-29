@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+ service1:
+  build: .
+  ports:
+   - "4001:4000"
+  volumes:
+   - ./:/app
+   - /app/node_modules
+#  environment:
+#   - PORT = 4000
+#  depends_on:
+#   - mongo
+
+# mongo:
+#  image: mongo
+#  environment:
+#   - MONGO_INITDB_ROOT_USERNAME=mohyor
+#   - MONGO_INITDB_ROOT_PASSWORD=password
+#  volumes:
+#   - mongo-db:/data/db
+
+ rabbitmq:
+  image: rabbitmq:3.11.3-management-alpine
+  container_name: 'rabbitmq'
+  ports:
+   - 5673:5672
+   - 15673:15672
+  volumes:
+   - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+   - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+  networks:
+   - rabbitmq_nodejs
+
+#volumes:
+# mongo-db:
+
+networks:
+ rabbitmq_nodejs:
+  driver: bridge
