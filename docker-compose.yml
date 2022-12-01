@@ -32,6 +32,8 @@ services:
    - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
   networks:
    - rabbitmq_nodejs
+  #    extra_hosts:
+#      - "host.docker.internal:host-gateway"
 
 #volumes:
 # mongo-db:

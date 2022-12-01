@@ -4,7 +4,16 @@ const { successResponse, errorResponse } = require("../../utils/response");
 const TaskRepository = require("../../repositories/task");
 const taskInstance = new TaskRepository();
 
-const rabbitMQ = require("../../../bootstrap/rabbitMQ");
+const rabbitMQClass = require("../../../bootstrap/rabbitMQ");
+const rabbitMQ = new rabbitMQClass();
+/*
+const start = async () => {
+  let dbName = process.env.dbName;
+  let amqpServerURL = process.env.amqpServerURL;
+
+  let instance = new rabbitMQClass(dbName, amqpServerURL);
+}
+*/
 
 require("dotenv").config();
 
@@ -24,8 +33,14 @@ const createTask = async (req, res) => {
 
    const task = await taskInstance.createTask(name, description);
 
+   await rabbitMQ.produce(task);
+
+   await rabbitMQ.consume(task);
+
+   /*
    rabbitMQ.send("Create Task", JSON.stringify(task))
    rabbitMQ.socket.emit("Task Created", task);
+   */
 
    return successResponse(res, 200, "Task Created", task);
  } catch (err) {
