@@ -1,10 +1,6 @@
 const amqp = require('amqplib');
 require("dotenv").config();
-const Database = require('../bootstrap/database');
-const { TaskModel } = require('../application/models/task');
-const TaskRepository = require("../application/repositories/task");
-const taskInstance = new TaskRepository();
-const mongoose = require("mongoose");
+const { MongoClient } = require("mongodb");
 
 /*
   const amqp = require("amqplib");
@@ -24,19 +20,33 @@ const socket = io.on('connection', (socket) => {
 
 class rabbitMQ {
 
-  #model;
+  #dbURI;
   #amqpServerURL;
   #connection;
   #channel;
   #dbName
 
-  constructor(connection, channel) {
-    this.#model = TaskModel;
+  constructor(dbURI, connection, channel) {
+    this.#dbURI = dbURI;
     this.#amqpServerURL = process.env.amqpServerURL + "?heartbeat=60";
     //this.#amqpServerURL = process.env.AMQP_URL + "?heartbeat=60";
     this.#connection = connection;
     this.#channel = channel;
     this.#dbName = "tasks";
+  }
+
+  async #dbConnect() {
+    try {
+      const client = new MongoClient(this.#dbURI);
+      await client.connect();
+
+      let database = client.db(this.#dbName);
+
+      return database;
+    } catch (e) {
+      console.log("Failed to connect to Mongo, error: " + e);
+      process.exit(1);
+    }
   }
 
   async #connectToQueue(key) {
@@ -53,9 +63,12 @@ class rabbitMQ {
     }
   }
 
-  async #produceData(data) {
+  async #produceData(data, collection) {
     try {
-      //const dbInstance = new Database(this.#model);
+
+      let db = await this.#dbConnect();
+
+      db.collection(collection).)
 
       await this.#channel.sendToQueue(this.#dbName, Buffer.from(JSON.stringify(data)));
       console.log(data);
