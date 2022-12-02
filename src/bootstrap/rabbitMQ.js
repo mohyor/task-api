@@ -55,8 +55,6 @@ class rabbitMQ {
 
   async #produceData(data) {
     try {
-      //const dbInstance = new Database(this.#model);
-
       await this.#channel.sendToQueue(this.#dbName, Buffer.from(JSON.stringify(data)));
       console.log(data);
     
@@ -70,6 +68,7 @@ class rabbitMQ {
     try {
       await this.#connectToQueue(this.#dbName);
 
+      console.log("Sending data to queue.");
       await this.#produceData(data);
 
     } catch (err) {
@@ -77,49 +76,33 @@ class rabbitMQ {
     }
   }
 
-  async #consumeData(data) {
-    try {
-      // The function should 
-      return data;
-    } catch (err) {
-      throw new Error(err);
-    }
-  }
-
-
   async consume(data) {
     try {
-      //const dbInstance = new Database(this.#model);
-      
       await this.#connectToQueue(this.#dbName);
       console.log("Listening for data");
       
-      await this.#channel.consume(this.#dbName, 
-      
-      //JSON.parse(data.toString())
-      //console.log("data consumed");
-        
-        async (message) => {
+      await this.#channel.consume(this.#dbName, JSON.stringify(data));
+      console.log(data);
+      console.log("Data consumed.");
 
-          const message = { data: data }; 
+      /*
+        //async (message) => {
         
         //let parseData = JSON.parse(data.content);
         //const task = await #this.createTask(name, description)
         //await this.#consumeData(Buffer.from(JSON.parse(data)));
         //JSON.parse(data);
         
-        this.#channel.ack(data);
-      });
+        //this.#channel.ack(data);
+         //console.log(data.content);
+      */
 
-     //console.log(data.content);
-    
     } catch (e) {
       console.log("Failed to consume, error: " + e);
       process.exit();
     }
   }
 }
-
 
 module.exports = rabbitMQ;
 
