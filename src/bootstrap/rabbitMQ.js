@@ -102,6 +102,8 @@ class rabbitMQ {
       process.exit();
     }
   }
+
+  //async 
 }
 
 module.exports = rabbitMQ;
